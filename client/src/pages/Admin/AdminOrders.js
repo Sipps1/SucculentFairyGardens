@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
@@ -7,7 +7,7 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const { userInfo } = useAuth();
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
       const config = {
@@ -21,7 +21,7 @@ const AdminOrders = () => {
       console.error('Failed to fetch orders:', error);
     }
     setLoading(false);
-  };
+  }, [userInfo]);
 
   useEffect(() => {
     fetchOrders();
