@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
   const { cartItems } = useCart();
-  const { userInfo, logout } = useAuth();
+  const { userInfo } = useAuth();
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
 
