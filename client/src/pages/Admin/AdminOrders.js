@@ -15,7 +15,7 @@ const AdminOrders = () => {
           Authorization: `Bearer ${userInfo.token}`,
         },
       };
-      const { data } = await axios.get('http://localhost:5001/api/admin/orders', config);
+      const { data } = await axios.get('/api/admin/orders', config);
       setOrders(data);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
@@ -36,7 +36,7 @@ const AdminOrders = () => {
         },
       };
       await axios.put(
-        `http://localhost:5001/api/admin/orders/${orderId}`,
+        `/api/admin/orders/${orderId}`,
         { orderStatus: newStatus },
         config
       );

@@ -13,7 +13,7 @@ const OrderConfirmationPage = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5001/api/admin/settings');
+        const { data } = await axios.get('/api/admin/settings');
         setSettings(data);
         setLoading(false);
       } catch (error) {

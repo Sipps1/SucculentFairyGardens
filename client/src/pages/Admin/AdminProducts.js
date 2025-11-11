@@ -26,7 +26,7 @@ const AdminProducts = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get('http://localhost:5001/api/products');
+      const { data } = await axios.get('/api/products');
       setProducts(data);
     } catch (error) {
       console.error('Failed to fetch products:', error);
@@ -80,14 +80,14 @@ const AdminProducts = () => {
       if (form._id) {
         // Update
         await axios.put(
-          `http://localhost:5001/api/admin/products/${form._id}`,
+          `/api/admin/products/${form._id}`,
           productData,
           config
         );
       } else {
         // Create
         await axios.post(
-          `http://localhost:5001/api/admin/products`,
+          `/api/admin/products`,
           productData,
           config
         );
@@ -103,7 +103,7 @@ const AdminProducts = () => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-        await axios.delete(`http://localhost:5001/api/admin/products/${id}`, config);
+        await axios.delete(`/api/admin/products/${id}`, config);
         fetchProducts();
       } catch (error) {
         console.error('Failed to delete product:', error);

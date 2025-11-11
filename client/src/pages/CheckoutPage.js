@@ -46,7 +46,7 @@ const CheckoutPage = () => {
       };
 
       const { data: createdOrder } = await axios.post(
-        'http://localhost:5001/api/orders',
+        '/api/orders',
         order
       );
 

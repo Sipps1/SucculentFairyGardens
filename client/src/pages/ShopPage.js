@@ -22,7 +22,7 @@ const ShopPage = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get('http://localhost:5001/api/products');
+        const { data } = await axios.get('/api/products');
         setProducts(data);
         setLoading(false);
       } catch (error) {

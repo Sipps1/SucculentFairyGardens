@@ -19,7 +19,7 @@ const AdminSettings = () => {
     const fetchSettings = async () => {
       setLoading(true);
       try {
-        const { data } = await axios.get('http://localhost:5001/api/admin/settings');
+        const { data } = await axios.get('/api/admin/settings');
         setSettings(data);
       } catch (error) {
         console.error('Failed to fetch settings:', error);
@@ -45,7 +45,7 @@ const AdminSettings = () => {
         },
       };
       await axios.put(
-        'http://localhost:5001/api/admin/settings',
+        '/api/admin/settings',
         settings,
         config
       );

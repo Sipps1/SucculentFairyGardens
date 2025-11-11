@@ -49,7 +49,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5001/api/products');
+        const { data } = await axios.get('/api/products');
         // Feature 4 products
         setFeatured(data.slice(0, 4));
         setLoading(false);

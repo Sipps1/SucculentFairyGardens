@@ -19,7 +19,7 @@ export const CartProvider = ({ children }) => {
     const fetchSettings = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get('http://localhost:5001/api/admin/settings');
+        const { data } = await axios.get('/api/admin/settings');
         setShippingFee(data.shippingFee);
         setLoading(false);
       } catch (error) {
