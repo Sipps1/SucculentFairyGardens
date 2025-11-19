@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import Order from '../models/orderModel.js';
+import Product from '../models/productModel.js';
 import Settings from '../models/settingsModel.js';
 import sendOrderEmail from '../utils/sendOrderEmail.js';
 
@@ -7,47 +8,65 @@ import sendOrderEmail from '../utils/sendOrderEmail.js';
 // @route   POST /api/orders
 // @access  Public
 const addOrderItems = asyncHandler(async (req, res) => {
-  const { orderItems, customer, itemsPrice, shippingPrice, totalPrice } =
-    req.body;
+  const { orderItems, customer } = req.body;
 
-  if (orderItems && orderItems.length === 0) {
+  if (!orderItems || orderItems.length === 0) {
     res.status(400);
     throw new Error('No order items');
-  } else {
-    // 1. Get the current settings (for notification email)
-    // We use findOne() because there is only one settings doc
-    const siteSettings = await Settings.findOne();
-    if (!siteSettings) {
-      // This is a failsafe in case settings aren't seeded
-      throw new Error('Site settings not found. Cannot process order.');
-    }
-
-    // 2. Create the order
-    const order = new Order({
-      orderItems: orderItems.map((x) => ({
-        ...x,
-        product: x._id, // Map frontend _id to product field
-        _id: undefined, // Remove _id to let MongoDB create a new one
-      })),
-      customer,
-      itemsPrice,
-      shippingPrice,
-      totalPrice,
-    });
-
-    const createdOrder = await order.save();
-
-    // 3. Send the notification email to the admin
-    try {
-      await sendOrderEmail(createdOrder, siteSettings);
-    } catch (emailError) {
-      console.error('Email failed to send, but order was saved:', emailError);
-      // You might want to add logic here to retry or flag this order
-    }
-
-    // 4. Send the created order back to the frontend
-    res.status(201).json(createdOrder);
   }
+
+  // 1. Fetch Shipping Fee from DB
+  const siteSettings = await Settings.findOne();
+  if (!siteSettings) {
+    res.status(500);
+    throw new Error('Site settings not found');
+  }
+  const shippingFee = siteSettings.shippingFee;
+
+  // 2. Recalculate Item Prices securely from the DB
+  let itemsPrice = 0;
+  const secureOrderItems = [];
+
+  for (const item of orderItems) {
+    const productFromDb = await Product.findById(item._id);
+    if (!productFromDb) {
+      res.status(404);
+      throw new Error(`Product not found: ${item.name}`);
+    }
+
+    // Use price from DB, not from request
+    itemsPrice += productFromDb.price * item.qty;
+
+    secureOrderItems.push({
+      name: productFromDb.name,
+      qty: item.qty,
+      image: productFromDb.image,
+      price: productFromDb.price,
+      product: productFromDb._id,
+    });
+  }
+
+  const totalPrice = itemsPrice + shippingFee;
+
+  // 3. Create Order
+  const order = new Order({
+    orderItems: secureOrderItems,
+    customer,
+    itemsPrice,
+    shippingPrice: shippingFee,
+    totalPrice,
+  });
+
+  const createdOrder = await order.save();
+
+  // 4. Send Email (catch error so it doesn't crash the response)
+  try {
+    await sendOrderEmail(createdOrder, siteSettings);
+  } catch (error) {
+    console.error('Email failed to send', error);
+  }
+
+  res.status(201).json(createdOrder);
 });
 
 export { addOrderItems };
