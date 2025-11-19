@@ -1,5 +1,5 @@
 import express from 'express';
-importRP from 'dotenv';
+import RP from 'dotenv';
 import cors from 'cors';
 import connectDB from './config/db.js';
 import productRoutes from './routes/productRoutes.js';
