@@ -1,5 +1,5 @@
 import express from 'express';
-import dotenv from 'dotenv';
+importRP from 'dotenv';
 import cors from 'cors';
 import connectDB from './config/db.js';
 import productRoutes from './routes/productRoutes.js';
@@ -8,7 +8,8 @@ import adminRoutes from './routes/adminRoutes.js';
 
 dotenv.config();
 
-// Connect to DB
+// You can keep this here to start the connection process early, 
+// but the middleware below is what actually ensures it's ready.
 connectDB();
 
 const app = express();
@@ -16,6 +17,14 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// --- ADD THIS MIDDLEWARE ---
+// This ensures every request waits for the DB connection to be ready
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+// ---------------------------
 
 // Routes
 app.get('/', (req, res) => {
